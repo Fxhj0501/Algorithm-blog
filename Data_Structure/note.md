@@ -20,4 +20,16 @@ Linked list is a linear data structure,but the elements of it are not stored an 
 
 - Drawbacks:
 
-  - 
+
+### 2.Build and Basic Operation
+
+#### 2.1 Build a Singly Linked List
+
+#### 2.2 Get/Add/Delete
+
+#### 2.3 findMiddle/isCycle
+
+- In this type of question, we often use fast/slow pointers to solve it.
+
+[876.Middle of the Linked List](https://leetcode.cn/problems/middle-of-the-linked-list/)
+

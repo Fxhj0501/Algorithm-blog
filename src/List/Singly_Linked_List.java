@@ -21,6 +21,10 @@ public class Singly_Linked_List {
             return val;
         return next.get(idx-1);
     }
+
+    public void write(int val){
+        this.val = val;
+    }
 //    public static void main(String[] args) {
 //        Singly_Linked_List head = new Singly_Linked_List(0);
 //        //add new node behind the head
