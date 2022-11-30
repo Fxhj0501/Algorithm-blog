@@ -4,7 +4,9 @@
 
 ## Tree
 
-### 1.1 Principle
+### 1. Principle
+
+#### 1.1 What is Tree
 
 - A tree consists of :
   - A set of nodes
@@ -12,6 +14,14 @@
     - Constraint: There is exactly one path between any tow nodes
 
 ![IMG_0772](../imgs/IMG_0772.PNG)
+
+#### 1.2 Height and Depth
+
+- The `depth` of a node is how far it is from the root
+- The `height` of a tree is the depth of its deepest leaf
+  - Determines the worst case runtime to find a node.(height+1)
+- The `average depth` of a tree is the average depth of a tree's node
+  - Determines the average case runtime to find a node.(average depth +1)
 
 ## Binary Search Trees
 
@@ -201,7 +211,7 @@ public int processor(TreeNode root){
 
 #### 2.4 Time Complexity
 
-The worst case time complexity of Search / Insertion / Delete operation is O(h) where h is the height of the Binary Search Tree. In worst case, we may have to travel from the root to the deepest leaf node. The height of a skewed tree may become n and the time complexity of the operations may become O(n).
+The worst case time complexity of Search / Insertion / Delete operation is `O(h)` where h is the height of the Binary Search Tree. In worst case, we may have to travel from the root to the deepest leaf node. The height of a skewed tree may become n and the time complexity of the operations may become `O(n)`. And in the best case, the time complexity is `O(logN)`.
 
 ### 3. Ohther Operations
 
@@ -366,4 +376,268 @@ class Solution {
     }
 }
 ```
+
+## Trie
+
+### 1. Principle
+
+#### 1.1 What is Trie
+
+The following definition is from Wikipedia.
+
+> In computer science, trie, also known as prefix tree or dictionary tree, is an ordered tree used to store associative arrays, in which the key is usually a string. Different from binary search tree, the key is not directly saved in the node, but determined by the location of the node in the tree. All descendants of a node have the same prefix, that is, the string corresponding to the node, while the root node corresponds to an empty string. In general, not all nodes have corresponding values, only the key corresponding to the leaf node and some internal nodes have related values.
+
+![trie](../imgs/trie.png)
+
+#### 1.2 Why we use it
+
+1. We can use this data structue to store the string.
+2. If we have a string list and we have a target string, we can use it to find whther the target string in the string list. And also we cam use it to find whether the target string is other string's prefix.
+3. We can count the number of occurrences of each string through Trie.
+
+#### 1.3 Advantage
+
+1. The efficiency of insertion and query is very high, both are O(m), where m is the length of the string to be inserted/queried.
+2. Different keywords in the Trie tree will not conflict.
+3. Trie trees can only have similar hash collisions when a keyword is allowed to associate multiple values.
+4. Trie tree does not need to find hash value, it has faster speed for **short string**. Usually, it is necessary to traverse the string to find the hash value.
+5. Trie tree can sort keywords in lexicographic order.
+
+### 2. Representation
+
+- Static representation
+  - We use a two-dimensional array trie to store characters
+  - We use cnt to mark whether this character is the end of a string and it also show the number of occurrences of this string
+  - We use idx to represent the number of each node
+
+```java
+class Trie {
+    int N = 100010; 
+    int[][] trie;
+    int[] cnt;
+    int idx;
+
+    public Trie() {
+        trie = new int[N][26];
+        cnt = new int[N];
+        idx = 0;
+    }
+
+    public void insert(String s) {
+        int p = 0;
+        for (int i = 0; i < s.length(); i++) {
+            int temp = s.charAt(i) - 'a';
+            if (trie[p][temp] == 0) 
+                trie[p][temp] = ++idx;
+            p = trie[p][temp];
+        }
+        cnt[p]++;
+    }
+
+    public boolean search(String s) {
+        int p = 0;
+        for (int i = 0; i < s.length(); i++) {
+            int temp = s.charAt(i) - 'a';
+            if (trie[p][temp] == 0) return false;
+            p = trie[p][temp];
+        }
+        return cnt[p]>0?true:false;
+    }
+
+    public boolean startsWith(String s) {
+        int p = 0;
+        for (int i = 0; i < s.length(); i++) {
+            int temp = s.charAt(i) - 'a';
+            if (trie[p][temp] == 0) 
+                return false;
+            p = trie[p][temp];
+        }
+        return true;
+    }
+}
+```
+
+- Dynamic presentation
+
+```java
+class Trie {
+    class TrieNode {
+        boolean end;
+        TrieNode[] tns = new TrieNode[26];
+    }
+
+    TrieNode root;
+    public Trie() {
+        root = new TrieNode();
+    }
+
+    public void insert(String s) {
+        TrieNode p = root;
+        for(int i = 0; i < s.length(); i++) {
+            int u = s.charAt(i) - 'a';
+            if (p.tns[u] == null) p.tns[u] = new TrieNode();
+            p = p.tns[u]; 
+        }
+        p.end = true;
+    }
+
+    public boolean search(String s) {
+        TrieNode p = root;
+        for(int i = 0; i < s.length(); i++) {
+            int u = s.charAt(i) - 'a';
+            if (p.tns[u] == null) return false;
+            p = p.tns[u]; 
+        }
+        return p.end;
+    }
+
+    public boolean startsWith(String s) {
+        TrieNode p = root;
+        for(int i = 0; i < s.length(); i++) {
+            int u = s.charAt(i) - 'a';
+            if (p.tns[u] == null) return false;
+            p = p.tns[u]; 
+        }
+        return true;
+    }
+}
+
+```
+
+### 3. Application
+
+[720. Longest Word in Dictionary](https://leetcode.cn/problems/longest-word-in-dictionary/)
+
+```java
+class Solution {
+    int N=100010;
+    int[][] trie;
+    int[] cnt;
+    int idx = 0;
+    boolean flag = false;
+    public void buildTrie(String s){
+        int p=0;
+        for(int i=0;i<s.length();i++){
+            int temp = s.charAt(i)-'a';
+            if(trie[p][temp]==0){
+                trie[p][temp] = ++idx;
+            }
+            p = trie[p][temp];
+        }
+        cnt[p]++;
+    }
+    public boolean findW(String s){
+        int p=0;
+        for(int i=0;i<s.length();i++){
+            int temp = s.charAt(i)-'a';
+            if(trie[p][temp]==0)
+                return false;
+            p = trie[p][temp];
+            if(cnt[p]>0)
+                continue;
+            else
+                return false;
+        }
+        return true;
+    }
+    public String longestWord(String[] words) {
+        trie = new int[N][26];
+        cnt = new int[N];
+        for(String a:words)
+            buildTrie(a);
+        int len = -1;
+        String res = "";
+        for(String a:words){
+            if(a.length()<len)
+                continue;
+            if(res.compareTo(a)>0 && res.length()==a.length()&&findW(a)){
+                res = a;
+            }
+            if(findW(a)&&a.length()>len){
+                res = a;
+                len = res.length();
+                continue;
+            }
+        }
+        return res;
+    }
+}
+```
+
+[212. Word Search II](https://leetcode.cn/problems/word-search-ii/)
+
+- Tire+DFS
+
+```java
+class Solution {
+    int[][] trie;
+    int[] cnt;
+    int idx = 0;
+    boolean flag = false;
+    int[] dx={-1,1,0,0};
+    int[] dy={0,0,-1,1};
+    public void insertTrie(String s){
+        int p=0;
+        for(int i=0;i<s.length();i++){
+            int temp = s.charAt(i)-'a';
+            if(trie[p][temp]==0)
+                trie[p][temp] = ++idx;
+            p = trie[p][temp];
+        }
+        cnt[p]++;
+    }
+    public boolean findW(String s){
+        if(s.length()==0)
+            return false;
+        int p=0;
+        for(int i=0;i<s.length();i++){
+            int temp = s.charAt(i)-'a';
+            if(trie[p][temp]==0)
+                return false;
+            p = trie[p][temp];
+        }
+        if(cnt[p]>0){
+            flag = true;
+            cnt[p]--;
+        }
+        return true;
+    }
+    public void dfs(int row, int col, char[][] board, List<String> res, String path){
+        if(row<0||row>=board.length||col<0||col>=board[0].length||board[row][col]=='#')
+            return;
+        char temp = board[row][col];
+        path+=temp;
+        if(findW(path)){
+            if(flag)
+                res.add(path);
+            flag = false;
+        }
+        else
+            return ;
+        board[row][col]='#';
+        for(int i=0;i<4;i++){
+            int curRow=row+dx[i];
+            int curCol=col+dy[i];
+            dfs(curRow,curCol,board,res,path);
+        }
+        board[row][col]=temp;
+    }
+    public List<String> findWords(char[][] board, String[] words) {
+        trie = new int[100010][26];
+        cnt = new int[100010];
+        List<String> res = new ArrayList<String>();
+        for(String x:words)
+            insertTrie(x);
+        for(int i=0;i<board.length;i++){
+            for(int j=0;j<board[0].length;j++){
+                String path="";
+                dfs(i,j,board,res,path);
+            }
+        }
+        return res;
+    }
+}
+```
+
+
 
